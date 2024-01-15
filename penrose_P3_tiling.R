@@ -34,7 +34,7 @@ height_rect <- 0.5
 # export the image to jpeg ?
 export_jpeg <- T
 # if yes, export file
-export_file <- "im_penrose_rhomb.jpeg"
+export_file <- "im_penrose_rhomb_p3.jpeg"
 # jpeg image parameters
 width <- 50
 height <- 30

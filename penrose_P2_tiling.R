@@ -1,13 +1,24 @@
-# This script plots a type II Penrose tiling. 
+# This script plots a P2 Penrose tiling. 
 # It is made of "kite" tiles and "arrow" tiles. It is a periodic
 # and very pretty.
 
+# function to add transparancy to a color
+add_transparancy <- function(col, alpha) {
+    col_rgb = col2rgb(col, alpha = alpha)
+    return(rgb(col_rgb[1], 
+               col_rgb[2],
+               col_rgb[3],
+               col_rgb[4], 
+               maxColorValue = 255)
+    )
+}
+
 # kite color
-col_k   <- add_transparancy("white", 1)
-# background color 
-col_a    <- add_transparancy("mistyrose", 1)
+col_k   <- add_transparancy("cornflowerblue", 1) #add_transparancy("white", 1)
+# arrows color 
+col_a    <- add_transparancy("yellow", 1)#add_transparancy("mistyrose", 1)
 # line color
-col_line <- "ivory"
+col_line <- "grey"#"ivory"
 
 # number of iterations (more iterations make more tiles)
 it_max   <- 8
@@ -15,7 +26,7 @@ it_max   <- 8
 lwd <- 0.5
 
 # should a rectangular box be ?
-draw_rect <- T
+draw_rect <- F
 # if yes, give the dimensions of the rectangle (1 x 1 takes the whole tiling)
 width_rect <- 0.8
 height_rect <- 0.5
@@ -23,7 +34,7 @@ height_rect <- 0.5
 # export the image to jpeg ?
 export_jpeg <- T
 # if yes, export file
-export_file <- "im_penrose_kite_star.jpeg"
+export_file <- "im_penrose_kite_star_p2.jpeg"
 # jpeg image parameters
 width <- 50
 height <- 30
