@@ -1,29 +1,30 @@
+rm(list = ls())
 # This script plots a P3 Penrose tiling. 
 # It is made of big and small rhombus tiles. It is a periodic
 # and very pretty.
 
 # function to add transparancy to a color
 add_transparancy <- function(col, alpha) {
-  col_rgb = col2rgb(col, alpha = alpha)
-  return(rgb(col_rgb[1], 
-             col_rgb[2],
-             col_rgb[3],
-             col_rgb[4], 
-             maxColorValue = 255)
-  )
+  col_rgb = col2rgb(col)
+  return(rgb(red = col_rgb[1], 
+             green = col_rgb[2],
+             blue = col_rgb[3],
+             alpha = floor(255 * alpha), 
+             maxColorValue = 255))
 }
 
+
 # big rhomb color
-col_b   <- add_transparancy("yellow", 0.51) #add_transparancy("white", 1)
+col_b   <- "yellow" #add_transparancy("white", 1) #add_transparancy("white", 1)
 # small rhomb color 
-col_s    <- add_transparancy("deepskyblue", 0.51)#add_transparancy("mistyrose", 1)
+col_s    <- "cornflowerblue"#add_transparancy("blue", 1)#add_transparancy("mistyrose", 1)
 # line color
 col_line <- "black"#"ivory"
 
 # number of iterations (more iterations make more tiles)
-it_max   <- 8
+n_iter <- 6
 # line width
-lwd <- 0.5
+lwd <- 1
 
 # should a rectangular box be ?
 draw_rect <- F
@@ -34,16 +35,13 @@ height_rect <- 0.5
 # export the image to jpeg ?
 export_jpeg <- T
 # if yes, export file
-export_file <- "im_penrose_rhomb_p3.jpeg"
+export_file <- "im_penrose_rhomb_p3_it6.jpeg"
 # jpeg image parameters
 width <- 50
-height <- 30
+height <- 50
 res <- 600
 pointsize <- 5
 
-
-# number of iterations (the higher, the more tiles)
-n_iter <- 6
 
 # function to get the perpendicular vector to a vector u
 orth_direct <- function(u) {
@@ -175,67 +173,80 @@ n_s <- 5
 small_rhomb_tops <- star_pts
 small_rhomb_bots <- star_pts[c(2, 3, 4, 5, 1), ]
 
-for (k in 1:n_iter) {
-  # creat list of new rhombs, obtained by cutting currant rhombs.
-  big_rhomb_tops_next = big_rhomb_bots_next = matrix(ncol = 2, nrow = 0)
-  small_rhomb_tops_next = small_rhomb_bots_next = matrix(ncol = 2, nrow = 0)
-  
-  # cut all big rhombs
-  for (i in 1:n_b) {
-    cut = cut_big_rhomb(top = c(big_rhomb_tops[i, ]), bot = c(big_rhomb_bots[i, ]))
-    new_big_tops = rbind(cut$big_full[, 1], cut$big_half_right[, 1], cut$big_half_left[, 1])
-    big_rhomb_tops_next = rbind(big_rhomb_tops_next, new_big_tops)
+if (n_iter > 0) {
+  for (k in 1:n_iter) {
+    # creat list of new rhombs, obtained by cutting currant rhombs.
+    big_rhomb_tops_next = big_rhomb_bots_next = matrix(ncol = 2, 
+                                                       nrow = 0)
+    small_rhomb_tops_next = small_rhomb_bots_next = matrix(ncol = 2, 
+                                                           nrow = 0)
     
-    new_small_tops = rbind(cut$small_half_left[, 1], cut$small_half_right[, 1])
-    new_small_bots = rbind(cut$small_half_left[, 2], cut$small_half_right[, 2])
-    
-    small_rhomb_tops_next = rbind(small_rhomb_tops_next, new_small_tops)
-    small_rhomb_bots_next = rbind(small_rhomb_bots_next, new_small_bots)
-    
-    new_big_bots = rbind(cut$big_full[, 2], cut$big_half_right[, 2], cut$big_half_left[, 2])
-    big_rhomb_bots_next = rbind(big_rhomb_bots_next, new_big_bots)
-  }
-  
-  # cut all small rhombs
-  for (i in 1:n_s) {
-    cut = cut_small_rhomb(top = c(small_rhomb_tops[i, ]), bot = c(small_rhomb_bots[i, ]))
-    
-    new_big_tops = rbind(cut$big_half_up[, 1], cut$big_half_low[, 1])
-    new_big_bots = rbind(cut$big_half_up[, 2], cut$big_half_low[, 2])
-    
-    big_rhomb_tops_next <- rbind(big_rhomb_tops_next, new_big_tops)
-    big_rhomb_bots_next <- rbind(big_rhomb_bots_next, new_big_bots)
-    
+    # cut all big rhombs
+    for (i in 1:n_b) {
+      cut = cut_big_rhomb(top = c(big_rhomb_tops[i, ]), 
+                          bot = c(big_rhomb_bots[i, ]))
+      new_big_tops = rbind(cut$big_full[, 1], 
+                           cut$big_half_right[, 1], cut$big_half_left[, 1])
+      big_rhomb_tops_next = rbind(big_rhomb_tops_next, 
+                                  new_big_tops)
       
-    new_small_tops <- rbind(cut$small_half_low[, 1], cut$small_half_up[, 1])
-    new_small_bots <- rbind(cut$small_half_low[, 2], cut$small_half_up[, 2])
+      new_small_tops = rbind(cut$small_half_left[, 1], 
+                             cut$small_half_right[, 1])
+      new_small_bots = rbind(cut$small_half_left[, 2], 
+                             cut$small_half_right[, 2])
       
-    small_rhomb_tops_next <- rbind(small_rhomb_tops_next, new_small_tops)
-    small_rhomb_bots_next <- rbind(small_rhomb_bots_next, new_small_bots)
-  }
-  
-  # there can be tiles counted twice or more, let's remove duplicates
-  # for big tiles
-  M <- cbind(big_rhomb_tops_next, big_rhomb_bots_next)
-  uniq_big <- !duplicated(round(M, digits = 10))
-  
-  # for small tiles
-  N <- cbind(small_rhomb_tops_next, small_rhomb_bots_next)
-  uniq_small <- !duplicated(round(N, digits = 10))
-  
-  # new lists of big rhombs
-  big_rhomb_bots <- big_rhomb_bots_next[uniq_big, ]
-  big_rhomb_tops <- big_rhomb_tops_next[uniq_big, ]
-  
-  # new lists of small rhombs
-  small_rhomb_bots <- small_rhomb_bots_next[uniq_small, ]
-  small_rhomb_tops <- small_rhomb_tops_next[uniq_small, ]
-  
-  # new numbers of big and small rhombs
-  n_b <- nrow(big_rhomb_bots)
-  n_s <- nrow(small_rhomb_bots)
-} 
-
+      small_rhomb_tops_next = rbind(small_rhomb_tops_next, new_small_tops)
+      small_rhomb_bots_next = rbind(small_rhomb_bots_next, new_small_bots)
+      
+      new_big_bots = rbind(cut$big_full[, 2], 
+                           cut$big_half_right[, 2], 
+                           cut$big_half_left[, 2])
+      big_rhomb_bots_next = rbind(big_rhomb_bots_next, 
+                                  new_big_bots)
+    }
+    
+    # cut all small rhombs
+    for (i in 1:n_s) {
+      cut = cut_small_rhomb(top = c(small_rhomb_tops[i, ]), 
+                            bot = c(small_rhomb_bots[i, ]))
+      
+      new_big_tops = rbind(cut$big_half_up[, 1], 
+                           cut$big_half_low[, 1])
+      new_big_bots = rbind(cut$big_half_up[, 2], cut$big_half_low[, 2])
+      
+      big_rhomb_tops_next <- rbind(big_rhomb_tops_next, new_big_tops)
+      big_rhomb_bots_next <- rbind(big_rhomb_bots_next, new_big_bots)
+      
+        
+      new_small_tops <- rbind(cut$small_half_low[, 1], cut$small_half_up[, 1])
+      new_small_bots <- rbind(cut$small_half_low[, 2], cut$small_half_up[, 2])
+        
+      small_rhomb_tops_next <- rbind(small_rhomb_tops_next, new_small_tops)
+      small_rhomb_bots_next <- rbind(small_rhomb_bots_next, new_small_bots)
+    }
+    
+    # there can be tiles counted twice or more, let's remove duplicates
+    # for big tiles
+    M <- cbind(big_rhomb_tops_next, big_rhomb_bots_next)
+    uniq_big <- !duplicated(round(M, digits = 10))
+    
+    # for small tiles
+    N <- cbind(small_rhomb_tops_next, small_rhomb_bots_next)
+    uniq_small <- !duplicated(round(N, digits = 10))
+    
+    # new lists of big rhombs
+    big_rhomb_bots <- big_rhomb_bots_next[uniq_big, ]
+    big_rhomb_tops <- big_rhomb_tops_next[uniq_big, ]
+    
+    # new lists of small rhombs
+    small_rhomb_bots <- small_rhomb_bots_next[uniq_small, ]
+    small_rhomb_tops <- small_rhomb_tops_next[uniq_small, ]
+    
+    # new numbers of big and small rhombs
+    n_b <- nrow(big_rhomb_bots)
+    n_s <- nrow(small_rhomb_bots)
+  } 
+}
 # Let's do the drawing now
 # export to jpeg if asked
 if (export_jpeg) {
@@ -247,8 +258,9 @@ if (export_jpeg) {
 # no margins
 par(mai = c(0, 0, 0, 0))
 # make an empty plot
-plot(NULL, xlim = c(-0.6, 0.6), 
-     ylim = c(-0.2, 0.2), 
+scale <- 1.3
+plot(NULL, xlim = scale * c(-1, 1), 
+     ylim = scale * c(-1, 1), 
      xlab = "", ylab = "", asp = 1, 
      xaxt = "n", yaxt = "n", bty = "n")
 # draw all big rhomb tiles one by one.

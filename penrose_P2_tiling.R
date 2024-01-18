@@ -18,10 +18,10 @@ col_k   <- add_transparancy("cornflowerblue", 1) #add_transparancy("white", 1)
 # arrows color 
 col_a    <- add_transparancy("yellow", 1)#add_transparancy("mistyrose", 1)
 # line color
-col_line <- "grey"#"ivory"
+col_line <- "black"#"ivory"
 
 # number of iterations (more iterations make more tiles)
-it_max   <- 8
+it_max   <- 7
 # line width
 lwd <- 0.5
 
@@ -34,10 +34,10 @@ height_rect <- 0.5
 # export the image to jpeg ?
 export_jpeg <- T
 # if yes, export file
-export_file <- "im_penrose_kite_star_p2.jpeg"
+export_file <- "im_penrose_kite_star_p2_it7.jpeg"
 # jpeg image parameters
 width <- 50
-height <- 30
+height <- 50
 res <- 600
 pointsize <- 5
 
@@ -190,8 +190,9 @@ while (it <= it_max) {
         # no margins
         par(mai = c(0, 0, 0, 0))
         # make an empty plot
-        plot(NULL, xlim = c(-0.6, 0.6), 
-             ylim = c(-0.2, 0.2), 
+        scale <- 1.5
+        plot(NULL, xlim = scale * c(-1, 1), 
+             ylim = scale * c(-1, 1), 
              xlab = "", ylab = "", asp = 1, 
              xaxt = "n", yaxt = "n", bty = "n")
         # draw all kite tiles one by one.
